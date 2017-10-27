@@ -1,0 +1,10 @@
+<resources>
+	<string name="app_name">MvvmDemo</string>
+	<string name="first_name">First Name</string>
+	<string name="last_name">Last Name</string>
+	<string name="start_timer">Start Timer</string>
+	<string name="show_message">Show Message</string>
+	<string name="message_title">Message</string>
+	<string name="message_text">A message to display</string>
+	<string name="choose_file">Choose File</string>
+</resources>

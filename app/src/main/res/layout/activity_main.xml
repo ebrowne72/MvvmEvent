@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	tools:context="com.example.erikbrowne.mvvmdemo.activities.MainActivity">
+
+	<data>
+		<variable
+			name="viewModel"
+			type="com.example.erikbrowne.mvvmdemo.viewmodels.MainViewModel" />
+	</data>
+
+	<android.support.constraint.ConstraintLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+
+		<TextView
+			android:id="@+id/firstNameLabel"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="16dp"
+			android:layout_marginTop="24dp"
+			android:text="@string/first_name"
+			android:textAppearance="@android:style/TextAppearance.Material.Medium"
+			android:textStyle="bold"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			/>
+
+		<TextView
+			android:id="@+id/firstName"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="16dp"
+			android:layout_marginTop="8dp"
+			android:text="@{viewModel.firstName}"
+			android:textAppearance="@android:style/TextAppearance.Material.Medium"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/firstNameLabel"
+			tools:text="John"/>
+
+		<TextView
+			android:id="@+id/lastNameLabel"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="16dp"
+			android:layout_marginTop="16dp"
+			android:text="@string/last_name"
+			android:textAppearance="@android:style/TextAppearance.Material.Medium"
+			android:textStyle="bold"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/firstName"/>
+
+		<TextView
+			android:id="@+id/lastName"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="16dp"
+			android:layout_marginTop="8dp"
+			android:text="@{viewModel.lastName}"
+			android:textAppearance="@android:style/TextAppearance.Material.Medium"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/lastNameLabel"
+			tools:text="Doe"/>
+
+		<Button
+			android:id="@+id/timerButton"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="16dp"
+			android:layout_marginTop="24dp"
+			android:onClick="@{() -> viewModel.startTimer()}"
+			android:text="@string/start_timer"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/lastName"
+			/>
+
+		<TextView
+			android:id="@+id/timer"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginEnd="16dp"
+			android:layout_marginStart="16dp"
+			android:layout_marginTop="8dp"
+			android:text="@{viewModel.timer}"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/timerButton"/>
+
+		<Button
+			android:id="@+id/msgButton"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="16dp"
+			android:layout_marginTop="24dp"
+			android:onClick="@{() -> viewModel.showMessage()}"
+			android:text="@string/show_message"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/timer"/>
+
+		<Button
+			android:id="@+id/chooserButton"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="16dp"
+			android:layout_marginTop="16dp"
+			android:text="@string/choose_file"
+			android:onClick="@{() -> viewModel.chooseFile()}"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/msgButton"/>
+
+		<TextView
+			android:id="@+id/fileUri"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="16dp"
+			android:layout_marginTop="16dp"
+			android:text="@{viewModel.fileUri}"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/chooserButton"
+			tools:text="content://something"/>
+
+	</android.support.constraint.ConstraintLayout>
+</layout>
+
