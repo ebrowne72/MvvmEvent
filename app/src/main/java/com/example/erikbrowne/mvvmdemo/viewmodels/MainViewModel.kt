@@ -13,8 +13,8 @@ import com.example.erikbrowne.mvvmdemo.DataBindingPropDelegate
 import com.example.erikbrowne.mvvmdemo.R
 import com.example.erikbrowne.mvvmdemo.SingleLiveEvent
 import com.example.erikbrowne.mvvmdemo.mvvm.ObservableViewModel
-import com.example.erikbrowne.mvvmdemo.mvvm.ViewMessages
-import com.example.erikbrowne.mvvmdemo.mvvm.ViewNavigation
+import com.example.erikbrowne.mvvmdemo.mvvm.ViewMessagesEvent
+import com.example.erikbrowne.mvvmdemo.mvvm.ViewNavigationEvent
 import java.util.concurrent.TimeUnit
 
 class MainViewModel(application: Application) : ObservableViewModel(application) {
@@ -25,8 +25,8 @@ class MainViewModel(application: Application) : ObservableViewModel(application)
 		@Bindable get
 	var fileUri: String by DataBindingPropDelegate("", BR.fileUri)
 		@Bindable get
-	val navigationEvent = SingleLiveEvent<ViewNavigation.() -> Unit>()
-	val messageEvent = SingleLiveEvent<ViewMessages.() -> Unit>()
+	val navigationEvent = SingleLiveEvent<ViewNavigationEvent>()
+	val messageEvent = SingleLiveEvent<ViewMessagesEvent>()
 
 	private val TIMER_MSG = 5
 	private val TIMER_INTERVAL = TimeUnit.SECONDS.toMillis(1)
