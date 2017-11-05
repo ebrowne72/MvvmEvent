@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Intent
 import android.databinding.Bindable
 import android.net.Uri
+import android.support.annotation.VisibleForTesting
 import com.android.databinding.library.baseAdapters.BR
 import com.example.erikbrowne.mvvmdemo.DataBindingPropDelegate
 import com.example.erikbrowne.mvvmdemo.R
@@ -18,7 +19,8 @@ import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 
 const private val TIMER_INTERVAL = 1000L
-const private val REQUEST_CHOOSE_FILE = 132
+@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+const val REQUEST_CHOOSE_FILE = 132
 
 class MainViewModel(application: Application) : ObservableViewModel(application) {
 
