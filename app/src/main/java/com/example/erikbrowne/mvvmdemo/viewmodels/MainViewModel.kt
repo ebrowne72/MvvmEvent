@@ -1,13 +1,10 @@
 package com.example.erikbrowne.mvvmdemo.viewmodels
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
 import android.databinding.Bindable
 import android.net.Uri
-import android.os.Handler
-import android.os.Message
 import com.android.databinding.library.baseAdapters.BR
 import com.example.erikbrowne.mvvmdemo.DataBindingPropDelegate
 import com.example.erikbrowne.mvvmdemo.R
@@ -15,7 +12,13 @@ import com.example.erikbrowne.mvvmdemo.SingleLiveEvent
 import com.example.erikbrowne.mvvmdemo.mvvm.ObservableViewModel
 import com.example.erikbrowne.mvvmdemo.mvvm.ViewMessagesEvent
 import com.example.erikbrowne.mvvmdemo.mvvm.ViewNavigationEvent
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
+
+const private val TIMER_INTERVAL = 1000L
+const private val REQUEST_CHOOSE_FILE = 132
 
 class MainViewModel(application: Application) : ObservableViewModel(application) {
 
@@ -28,36 +31,24 @@ class MainViewModel(application: Application) : ObservableViewModel(application)
 	val navigationEvent = SingleLiveEvent<ViewNavigationEvent>()
 	val messageEvent = SingleLiveEvent<ViewMessagesEvent>()
 
-	private val TIMER_MSG = 5
-	private val TIMER_INTERVAL = TimeUnit.SECONDS.toMillis(1)
-	private val REQUEST_CHOOSE_FILE = 132
+	private var timerJob: Job? = null
 
-	private val handler = @SuppressLint("HandlerLeak") object : Handler() {
-		override fun handleMessage(msg: Message?) {
-			if ( msg?.what == TIMER_MSG ) {
-				timerVal--
-				timer = when {
-					timerVal < 0 -> ""
-					else -> timerVal.toString()
-				}
-				if ( timerVal >= 0 ) {
-					sendEmptyMessageDelayed(TIMER_MSG, TIMER_INTERVAL)
-				}
-				if ( timerVal == 0 ) {
-					messageEvent.value = { this.showMessage("Timer ended") }
-				}
-			}
-		}
-	}
-	private var timerVal = 0
 	override fun onCleared() {
-		handler.removeMessages(TIMER_MSG)
+		timerJob?.cancel()
 	}
 
 	fun startTimer() {
-		timerVal = 10
-		timer = timerVal.toString()
-		handler.sendEmptyMessageDelayed(TIMER_MSG, TIMER_INTERVAL)
+		timerJob?.cancel()
+		timerJob = launch(UI) {
+			for ( i in 10 downTo 0 ) {
+				timer = i.toString()
+				if ( i == 0 ) {
+					messageEvent.value = { showMessage("Timer ended") }
+				}
+				delay(TIMER_INTERVAL)
+			}
+			timer = ""
+		}
 	}
 
 	fun showMessage() {
