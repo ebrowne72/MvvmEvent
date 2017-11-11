@@ -9,11 +9,11 @@ import com.android.databinding.library.baseAdapters.BR
 
 abstract class BaseMvvmActivity<B : ViewDataBinding, VM : ObservableViewModel> : AppCompatActivity() {
 	protected lateinit var binding: B
-	protected lateinit var model: VM
+	protected lateinit var viewModel: VM
 
 	fun setModelAndView(modelClazz: Class<VM>, @LayoutRes layoutId: Int) {
 		binding = DataBindingUtil.setContentView(this, layoutId)
-		model = ViewModelProviders.of(this).get(modelClazz)
-		binding.setVariable(BR.viewModel, model)
+		viewModel = ViewModelProviders.of(this).get(modelClazz)
+		binding.setVariable(BR.viewModel, viewModel)
 	}
 }
