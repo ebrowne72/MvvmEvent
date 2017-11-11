@@ -9,10 +9,9 @@ import android.support.annotation.VisibleForTesting
 import com.android.databinding.library.baseAdapters.BR
 import com.example.erikbrowne.mvvmdemo.DataBindingPropDelegate
 import com.example.erikbrowne.mvvmdemo.R
-import com.example.erikbrowne.mvvmdemo.SingleLiveEvent
 import com.example.erikbrowne.mvvmdemo.mvvm.ObservableViewModel
-import com.example.erikbrowne.mvvmdemo.mvvm.ViewMessagesEvent
-import com.example.erikbrowne.mvvmdemo.mvvm.ViewNavigationEvent
+import com.example.erikbrowne.mvvmdemo.mvvm.ViewMessages
+import com.example.erikbrowne.mvvmdemo.mvvm.ViewNavigation
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.delay
@@ -31,8 +30,8 @@ class MainViewModel @JvmOverloads constructor(application: Application, private 
 		@Bindable get
 	var fileUri: String by DataBindingPropDelegate("", BR.fileUri)
 		@Bindable get
-	val navigationEvent = SingleLiveEvent<ViewNavigationEvent>()
-	val messageEvent = SingleLiveEvent<ViewMessagesEvent>()
+	val navigationEvent = LiveMessageEvent<ViewNavigation>()
+	val messagesEvent = LiveMessageEvent<ViewMessages>()
 
 	@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 	var timerJob: Job? = null
@@ -47,7 +46,7 @@ class MainViewModel @JvmOverloads constructor(application: Application, private 
 			for ( i in 10 downTo 0 ) {
 				timer = i.toString()
 				if ( i == 0 ) {
-					messageEvent.value = { showMessage("Timer ended") }
+					messagesEvent.sendEvent { showMessage("Timer ended") }
 				}
 				delay(TIMER_INTERVAL)
 			}
@@ -56,7 +55,7 @@ class MainViewModel @JvmOverloads constructor(application: Application, private 
 	}
 
 	fun showMessage() {
-		messageEvent.value = { showMessage(getApplication<Application>().getString(R.string.message_text)) }
+		messagesEvent.sendEvent { showMessage(getApplication<Application>().getString(R.string.message_text)) }
 	}
 
 	fun chooseFile() {
@@ -64,7 +63,7 @@ class MainViewModel @JvmOverloads constructor(application: Application, private 
 		intent.type = "image/*"
 		intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true)
 		intent.addCategory(Intent.CATEGORY_OPENABLE)
-		navigationEvent.value = { startActivityForResult(intent, REQUEST_CHOOSE_FILE) }
+		navigationEvent.sendEvent { startActivityForResult(intent, REQUEST_CHOOSE_FILE) }
 	}
 
 	fun processActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

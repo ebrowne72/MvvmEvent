@@ -59,7 +59,7 @@ internal class MainViewModelTest {
 	fun `showMessage sends message event and shows message`() {
 		viewModel.showMessage()
 
-		val event = viewModel.messageEvent.value
+		val event = viewModel.messagesEvent.value
 		assertNotNull(event)
 		val viewMsgsObj = mock<ViewMessages>()
 		// the 'if' performs a smart cast
