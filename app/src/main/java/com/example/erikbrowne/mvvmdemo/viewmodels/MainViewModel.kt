@@ -17,12 +17,13 @@ import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
+import kotlin.coroutines.experimental.CoroutineContext
 
 const private val TIMER_INTERVAL = 1000L
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 const val REQUEST_CHOOSE_FILE = 132
 
-class MainViewModel(application: Application) : ObservableViewModel(application) {
+class MainViewModel @JvmOverloads constructor(application: Application, private val uiContext: CoroutineContext = UI) : ObservableViewModel(application) {
 
 	var firstName = "Erik"
 	var lastName = "Browne"
@@ -33,7 +34,8 @@ class MainViewModel(application: Application) : ObservableViewModel(application)
 	val navigationEvent = SingleLiveEvent<ViewNavigationEvent>()
 	val messageEvent = SingleLiveEvent<ViewMessagesEvent>()
 
-	private var timerJob: Job? = null
+	@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+	var timerJob: Job? = null
 
 	override fun onCleared() {
 		timerJob?.cancel()
@@ -41,7 +43,7 @@ class MainViewModel(application: Application) : ObservableViewModel(application)
 
 	fun startTimer() {
 		timerJob?.cancel()
-		timerJob = launch(UI) {
+		timerJob = launch(uiContext) {
 			for ( i in 10 downTo 0 ) {
 				timer = i.toString()
 				if ( i == 0 ) {
@@ -54,7 +56,7 @@ class MainViewModel(application: Application) : ObservableViewModel(application)
 	}
 
 	fun showMessage() {
-		messageEvent.value = { this.showMessage(getApplication<Application>().getString(R.string.message_text)) }
+		messageEvent.value = { showMessage(getApplication<Application>().getString(R.string.message_text)) }
 	}
 
 	fun chooseFile() {
@@ -62,7 +64,7 @@ class MainViewModel(application: Application) : ObservableViewModel(application)
 		intent.type = "image/*"
 		intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true)
 		intent.addCategory(Intent.CATEGORY_OPENABLE)
-		navigationEvent.value = { this.startActivityForResult(intent, REQUEST_CHOOSE_FILE) }
+		navigationEvent.value = { startActivityForResult(intent, REQUEST_CHOOSE_FILE) }
 	}
 
 	fun processActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
