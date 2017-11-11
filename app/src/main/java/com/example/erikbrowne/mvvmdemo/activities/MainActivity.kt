@@ -8,7 +8,9 @@ import com.example.erikbrowne.mvvmdemo.R
 import com.example.erikbrowne.mvvmdemo.databinding.ActivityMainBinding
 import com.example.erikbrowne.mvvmdemo.mvvm.BaseMvvmActivity
 import com.example.erikbrowne.mvvmdemo.mvvm.ViewMessages
+import com.example.erikbrowne.mvvmdemo.mvvm.ViewMessagesEvent
 import com.example.erikbrowne.mvvmdemo.mvvm.ViewNavigation
+import com.example.erikbrowne.mvvmdemo.mvvm.ViewNavigationEvent
 import com.example.erikbrowne.mvvmdemo.viewmodels.MainViewModel
 
 class MainActivity : BaseMvvmActivity<ActivityMainBinding, MainViewModel>(), ViewMessages, ViewNavigation {
@@ -16,10 +18,10 @@ class MainActivity : BaseMvvmActivity<ActivityMainBinding, MainViewModel>(), Vie
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 		setModelAndView(MainViewModel::class.java, R.layout.activity_main)
-		model.messageEvent.observe(this, Observer<ViewMessages.() -> Unit> { event ->
+		model.messageEvent.observe(this, Observer<ViewMessagesEvent> { event ->
 			event?.invoke(this)
 		})
-		model.navigationEvent.observe(this, Observer<ViewNavigation.() -> Unit> { event ->
+		model.navigationEvent.observe(this, Observer<ViewNavigationEvent> { event ->
 			event?.invoke(this)
 		})
     }
