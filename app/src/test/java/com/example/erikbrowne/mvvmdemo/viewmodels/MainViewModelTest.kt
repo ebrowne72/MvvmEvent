@@ -9,11 +9,30 @@ import com.example.erikbrowne.mvvmdemo.R
 import com.example.erikbrowne.mvvmdemo.mvvm.ViewMessages
 import com.example.erikbrowne.mvvmdemo.mvvm.ViewNavigation
 import com.nhaarman.mockito_kotlin.*
+import kotlinx.coroutines.experimental.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.util.concurrent.TimeUnit
+import kotlin.coroutines.experimental.CoroutineContext
+
+class TestUiContext : CoroutineDispatcher(), Delay {
+	override fun scheduleResumeAfterDelay(time: Long, unit: TimeUnit, continuation: CancellableContinuation<Unit>) {
+		println("scheduleresume")
+	}
+
+	suspend override fun delay(time: Long, unit: TimeUnit) {
+		println("delay")
+	}
+
+	override fun dispatch(context: CoroutineContext, block: Runnable) {
+		println("dispatch")
+		CommonPool.dispatch(context, block)
+	}
+
+}
 
 internal class MainViewModelTest {
 
@@ -21,7 +40,9 @@ internal class MainViewModelTest {
 	@JvmField
 	val rule = InstantTaskExecutorRule()
 
-	lateinit var viewModel: MainViewModel
+	private lateinit var viewModel: MainViewModel
+
+	private val uiContext = CommonPool//TestUiContext()
 
 	private val message = "message"
 
@@ -31,7 +52,7 @@ internal class MainViewModelTest {
 
 	@Before
 	fun beforeEachTest() {
-		viewModel = MainViewModel(application)
+		viewModel = MainViewModel(application, uiContext)
 	}
 
 	@Test
@@ -85,12 +106,11 @@ internal class MainViewModelTest {
 		assertEquals("", viewModel.fileUri)
 	}
 
-/*
 	@Test
-	fun `foo`() {
+	fun `startTimer starts timer`() {
 		runBlocking {
 			viewModel.startTimer()
+			viewModel.timerJob?.join()
 		}
 	}
-*/
 }
