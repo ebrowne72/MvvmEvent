@@ -17,6 +17,7 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import kotlin.coroutines.experimental.CoroutineContext
+import kotlin.coroutines.experimental.buildSequence
 
 const private val TIMER_INTERVAL = 1000L
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -30,8 +31,15 @@ class MainViewModel @JvmOverloads constructor(application: Application, private 
 		@Bindable get
 	var fileUri: String by DataBindingPropDelegate("", BR.fileUri)
 		@Bindable get
+	var fibonacci: String by DataBindingPropDelegate("", BR.fibonacci)
+		@Bindable get
+	var prime: String by DataBindingPropDelegate("", BR.prime)
+		@Bindable get
 	val navigationEvent = LiveMessageEvent<ViewNavigation>()
 	val messagesEvent = LiveMessageEvent<ViewMessages>()
+
+	private var fibonacciItr: Iterator<Int>? = null
+	private var primeItr: Iterator<Int>? = null
 
 	@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 	var timerJob: Job? = null
@@ -75,5 +83,49 @@ class MainViewModel @JvmOverloads constructor(application: Application, private 
 				}
 			}
 		}
+	}
+
+	fun showNextFibonacci() {
+		if ( fibonacciItr == null ) {
+			val fibonacciSeq = buildSequence {
+				var prevPrev = 0
+				var prev = 1
+
+				while (true) {
+					val newValue = prevPrev + prev
+					yield(newValue)
+					prevPrev = prev
+					prev = newValue
+				}
+			}
+
+			fibonacciItr = fibonacciSeq.iterator()
+		}
+
+		fibonacci = fibonacciItr?.next().toString()
+	}
+
+	fun showNextPrime() {
+		if ( primeItr == null ) {
+			val primeSeq = buildSequence {
+				val primeList = mutableListOf<Int>()
+
+				// yield the first prime
+				yield(2)
+
+				// test odd numbers for primeness
+				var candidate = 1
+				while (true) {
+					candidate += 2
+					if ( primeList.any { candidate % it == 0 } ) continue
+					primeList.add(candidate)
+					yield(candidate)
+				}
+			}
+
+			primeItr = primeSeq.iterator()
+		}
+
+		prime = primeItr?.next().toString()
 	}
 }

@@ -7,4 +7,6 @@
 	<string name="message_title">Message</string>
 	<string name="message_text">A message to display</string>
 	<string name="choose_file">Choose File</string>
+	<string name="fibonacci">Fibonacci</string>
+	<string name="primes">Primes</string>
 </resources>
