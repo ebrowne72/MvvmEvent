@@ -113,4 +113,54 @@ internal class MainViewModelTest {
 			viewModel.timerJob?.join()
 		}
 	}
+
+	@Test
+	fun `showNextFibonacci shows Fibonacci numbers`() {
+		assertEquals("", viewModel.fibonacci)
+		viewModel.showNextFibonacci()
+		assertEquals("2", viewModel.fibonacci)
+		viewModel.showNextFibonacci()
+		assertEquals("3", viewModel.fibonacci)
+		viewModel.showNextFibonacci()
+		assertEquals("5", viewModel.fibonacci)
+		viewModel.showNextFibonacci()
+		assertEquals("8", viewModel.fibonacci)
+		viewModel.showNextFibonacci()
+		assertEquals("13", viewModel.fibonacci)
+		viewModel.showNextFibonacci()
+		assertEquals("21", viewModel.fibonacci)
+		viewModel.showNextFibonacci()
+		assertEquals("34", viewModel.fibonacci)
+		viewModel.showNextFibonacci()
+		assertEquals("55", viewModel.fibonacci)
+		viewModel.showNextFibonacci()
+		assertEquals("89", viewModel.fibonacci)
+		viewModel.showNextFibonacci()
+		assertEquals("144", viewModel.fibonacci)
+	}
+
+	@Test
+	fun `showNextPrime shows primes`() {
+		assertEquals("", viewModel.prime)
+		viewModel.showNextPrime()
+		assertEquals("2", viewModel.prime)
+		viewModel.showNextPrime()
+		assertEquals("3", viewModel.prime)
+		viewModel.showNextPrime()
+		assertEquals("5", viewModel.prime)
+		viewModel.showNextPrime()
+		assertEquals("7", viewModel.prime)
+		viewModel.showNextPrime()
+		assertEquals("11", viewModel.prime)
+		viewModel.showNextPrime()
+		assertEquals("13", viewModel.prime)
+		viewModel.showNextPrime()
+		assertEquals("17", viewModel.prime)
+		viewModel.showNextPrime()
+		assertEquals("19", viewModel.prime)
+		viewModel.showNextPrime()
+		assertEquals("23", viewModel.prime)
+		viewModel.showNextPrime()
+		assertEquals("29", viewModel.prime)
+	}
 }
