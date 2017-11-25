@@ -88,7 +88,7 @@ class MainViewModel @JvmOverloads constructor(application: Application, private 
 	fun showNextFibonacci() {
 		if ( fibonacciItr == null ) {
 			val fibonacciSeq = buildSequence {
-				var prevPrev = 0
+				var prevPrev = 1
 				var prev = 1
 
 				while (true) {
