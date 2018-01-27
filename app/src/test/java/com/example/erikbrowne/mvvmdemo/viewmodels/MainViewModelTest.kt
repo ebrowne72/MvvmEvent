@@ -6,10 +6,17 @@ import android.arch.core.executor.testing.InstantTaskExecutorRule
 import android.content.Intent
 import android.net.Uri
 import com.example.erikbrowne.mvvmdemo.R
-import com.example.erikbrowne.mvvmdemo.mvvm.ViewMessages
-import com.example.erikbrowne.mvvmdemo.mvvm.ViewNavigation
-import com.nhaarman.mockito_kotlin.*
-import kotlinx.coroutines.experimental.*
+import com.nhaarman.mockito_kotlin.any
+import com.nhaarman.mockito_kotlin.check
+import com.nhaarman.mockito_kotlin.doReturn
+import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.verify
+import kotlinx.coroutines.experimental.CancellableContinuation
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.CoroutineDispatcher
+import kotlinx.coroutines.experimental.Delay
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -42,30 +49,34 @@ internal class MainViewModelTest {
 
 	private lateinit var viewModel: MainViewModel
 
-	private val uiContext = CommonPool//TestUiContext()
-
 	private val message = "message"
 
 	private val application = mock<Application> {
 		on { getString(R.string.message_text) } doReturn message
 	}
 
+	private fun createMainViewModel(context: CoroutineContext = CommonPool): MainViewModel = MainViewModel(application, context)
+
+	private inline fun <reified T : Any> getAndProcessEvent(event: LiveMessageEvent<T>): T {
+		val eventValue = event.value
+		assertNotNull(eventValue)
+		val receiverObject = mock<T>()
+		if ( eventValue != null ) {
+			receiverObject.eventValue()
+		}
+		return receiverObject
+	}
+
 	@Before
 	fun beforeEachTest() {
-		viewModel = MainViewModel(application, uiContext)
+		viewModel = createMainViewModel()
 	}
 
 	@Test
 	fun `showMessage sends message event and shows message`() {
 		viewModel.showMessage()
 
-		val event = viewModel.messagesEvent.value
-		assertNotNull(event)
-		val viewMsgsObj = mock<ViewMessages>()
-		// the 'if' performs a smart cast
-		if ( event != null) {
-			viewMsgsObj.event()
-		}
+		val viewMsgsObj = getAndProcessEvent(viewModel.messagesEvent)
 		verify(viewMsgsObj).showMessage(message)
 	}
 
@@ -73,13 +84,7 @@ internal class MainViewModelTest {
 	fun `chooseFile sends nav event and starts activity`() {
 		viewModel.chooseFile()
 
-		val event = viewModel.navigationEvent.value
-		assertNotNull(event)
-		val viewNavObj = mock<ViewNavigation>()
-		// the 'if' performs a smart cast
-		if ( event != null) {
-			viewNavObj.event()
-		}
+		val viewNavObj = getAndProcessEvent(viewModel.navigationEvent)
 		verify(viewNavObj).startActivityForResult(check {
 			assertEquals(Intent.ACTION_GET_CONTENT, it.action)
 			assertEquals("image/*", it.type)
@@ -108,10 +113,16 @@ internal class MainViewModelTest {
 
 	@Test
 	fun `startTimer starts timer`() {
+		lateinit var testModel: MainViewModel
 		runBlocking {
-			viewModel.startTimer()
-			viewModel.timerJob?.join()
+			testModel = createMainViewModel(coroutineContext)
+			testModel.startTimer()
+			delay(500)
+			assertEquals("10", testModel.timer)
 		}
+		assertEquals("Timer not empty","", testModel.timer)
+		val viewMsgsObj = getAndProcessEvent(testModel.messagesEvent)
+		verify(viewMsgsObj).showMessage("Timer ended")
 	}
 
 	@Test

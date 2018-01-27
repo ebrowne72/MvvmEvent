@@ -40,9 +40,7 @@ class MainViewModel @JvmOverloads constructor(application: Application, private 
 
 	private var fibonacciItr: Iterator<Int>? = null
 	private var primeItr: Iterator<Int>? = null
-
-	@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-	var timerJob: Job? = null
+	private var timerJob: Job? = null
 
 	override fun onCleared() {
 		timerJob?.cancel()
