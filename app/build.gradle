@@ -63,7 +63,7 @@ dependencies {
     implementation "android.arch.lifecycle:extensions:$arch_version"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.19.3'
 
-    kapt 'com.android.databinding:compiler:3.0.0'
+    kapt 'com.android.databinding:compiler:3.0.1'
 
     unmock 'org.robolectric:android-all:4.3_r2-robolectric-0'
 
