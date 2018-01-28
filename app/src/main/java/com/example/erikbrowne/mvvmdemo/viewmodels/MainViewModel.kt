@@ -19,7 +19,7 @@ import kotlinx.coroutines.experimental.launch
 import kotlin.coroutines.experimental.CoroutineContext
 import kotlin.coroutines.experimental.buildSequence
 
-const private val TIMER_INTERVAL = 1000L
+private const val TIMER_INTERVAL = 1000L
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 const val REQUEST_CHOOSE_FILE = 132
 
