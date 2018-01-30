@@ -12,10 +12,13 @@ import com.example.erikbrowne.mvvmdemo.R
 import com.example.erikbrowne.mvvmdemo.mvvm.ObservableViewModel
 import com.example.erikbrowne.mvvmdemo.mvvm.ViewMessages
 import com.example.erikbrowne.mvvmdemo.mvvm.ViewNavigation
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.CoroutineDispatcher
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.withContext
 import kotlin.coroutines.experimental.CoroutineContext
 import kotlin.coroutines.experimental.buildSequence
 
@@ -23,7 +26,11 @@ private const val TIMER_INTERVAL = 1000L
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 const val REQUEST_CHOOSE_FILE = 132
 
-class MainViewModel @JvmOverloads constructor(application: Application, private val uiContext: CoroutineContext = UI) : ObservableViewModel(application) {
+class MainViewModel @JvmOverloads constructor(
+		application: Application,
+		private val uiContext: CoroutineContext = UI,
+		private val bgDispatcher: CoroutineDispatcher = CommonPool
+) : ObservableViewModel(application) {
 
 	var firstName = "Erik"
 	var lastName = "Browne"
@@ -41,6 +48,7 @@ class MainViewModel @JvmOverloads constructor(application: Application, private 
 	private var fibonacciItr: Iterator<Int>? = null
 	private var primeItr: Iterator<Int>? = null
 	private var timerJob: Job? = null
+	private val parentJob = Job()
 
 	override fun onCleared() {
 		timerJob?.cancel()
@@ -48,8 +56,10 @@ class MainViewModel @JvmOverloads constructor(application: Application, private 
 
 	fun startTimer() {
 		timerJob?.cancel()
+		println("startTimer")
 		timerJob = launch(uiContext) {
 			for ( i in 10 downTo 0 ) {
+				println("timer loop $i")
 				timer = i.toString()
 				if ( i == 0 ) {
 					messagesEvent.sendEvent { showMessage("Timer ended") }
@@ -126,4 +136,19 @@ class MainViewModel @JvmOverloads constructor(application: Application, private 
 
 		prime = primeItr?.next().toString()
 	}
+
+	fun doSomethingAsync() {
+		launch(uiContext, parent = parentJob) {
+			val data = getDataFromNet()
+			messagesEvent.sendEvent { showMessage(data) }
+		}
+
+	}
+
+	suspend fun getDataFromNet(): String = withContext(bgDispatcher) {
+//		delay(5000)
+		Thread.sleep(5000)
+		"Coroutine is done"
+	}
+
 }

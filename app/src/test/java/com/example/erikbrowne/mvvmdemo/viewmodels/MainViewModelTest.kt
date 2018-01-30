@@ -5,6 +5,7 @@ import android.app.Application
 import android.arch.core.executor.testing.InstantTaskExecutorRule
 import android.content.Intent
 import android.net.Uri
+import com.example.erikbrowne.mvvmdemo.DirectExecutor
 import com.example.erikbrowne.mvvmdemo.R
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.check
@@ -15,6 +16,7 @@ import kotlinx.coroutines.experimental.CancellableContinuation
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.CoroutineDispatcher
 import kotlinx.coroutines.experimental.Delay
+import kotlinx.coroutines.experimental.asCoroutineDispatcher
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert.assertEquals
@@ -55,8 +57,6 @@ internal class MainViewModelTest {
 		on { getString(R.string.message_text) } doReturn message
 	}
 
-	private fun createMainViewModel(context: CoroutineContext = CommonPool): MainViewModel = MainViewModel(application, context)
-
 	private inline fun <reified T : Any> getAndProcessEvent(event: LiveMessageEvent<T>): T {
 		val eventValue = event.value
 		assertNotNull(eventValue)
@@ -69,7 +69,7 @@ internal class MainViewModelTest {
 
 	@Before
 	fun beforeEachTest() {
-		viewModel = createMainViewModel()
+		viewModel = MainViewModel(application, DirectExecutor.asCoroutineDispatcher(), DirectExecutor.asCoroutineDispatcher())
 	}
 
 	@Test
@@ -115,7 +115,7 @@ internal class MainViewModelTest {
 	fun `startTimer starts timer`() {
 		lateinit var testModel: MainViewModel
 		runBlocking {
-			testModel = createMainViewModel(coroutineContext)
+			testModel = MainViewModel(application, coroutineContext + DirectExecutor.asCoroutineDispatcher())
 			testModel.startTimer()
 			delay(500)
 			assertEquals("10", testModel.timer)
@@ -173,5 +173,13 @@ internal class MainViewModelTest {
 		assertEquals("23", viewModel.prime)
 		viewModel.showNextPrime()
 		assertEquals("29", viewModel.prime)
+	}
+
+	@Test
+	fun `doSomethingAsync waits then shows message`() {
+		viewModel.doSomethingAsync()
+
+		val viewMsgsObj = getAndProcessEvent(viewModel.messagesEvent)
+		verify(viewMsgsObj).showMessage("Coroutine is done")
 	}
 }
