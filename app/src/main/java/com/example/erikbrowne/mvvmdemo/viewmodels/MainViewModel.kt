@@ -145,9 +145,8 @@ class MainViewModel @JvmOverloads constructor(
 
 	}
 
-	suspend fun getDataFromNet(): String = withContext(bgDispatcher) {
-//		delay(5000)
-		Thread.sleep(5000)
+	private suspend fun getDataFromNet(): String = withContext(bgDispatcher) {
+		delay(5000)
 		"Coroutine is done"
 	}
 

@@ -5,7 +5,6 @@ import android.app.Application
 import android.arch.core.executor.testing.InstantTaskExecutorRule
 import android.content.Intent
 import android.net.Uri
-import com.example.erikbrowne.mvvmdemo.DirectExecutor
 import com.example.erikbrowne.mvvmdemo.R
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.check
@@ -13,12 +12,8 @@ import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import kotlinx.coroutines.experimental.CancellableContinuation
-import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.CoroutineDispatcher
 import kotlinx.coroutines.experimental.Delay
-import kotlinx.coroutines.experimental.asCoroutineDispatcher
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -27,18 +22,13 @@ import org.junit.Test
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.experimental.CoroutineContext
 
-class TestUiContext : CoroutineDispatcher(), Delay {
+class TestDirectContext : CoroutineDispatcher(), Delay {
 	override fun scheduleResumeAfterDelay(time: Long, unit: TimeUnit, continuation: CancellableContinuation<Unit>) {
-		println("scheduleresume")
-	}
-
-	suspend override fun delay(time: Long, unit: TimeUnit) {
-		println("delay")
+		continuation.resume(Unit)
 	}
 
 	override fun dispatch(context: CoroutineContext, block: Runnable) {
-		println("dispatch")
-		CommonPool.dispatch(context, block)
+		block.run()
 	}
 
 }
@@ -69,7 +59,7 @@ internal class MainViewModelTest {
 
 	@Before
 	fun beforeEachTest() {
-		viewModel = MainViewModel(application, DirectExecutor.asCoroutineDispatcher(), DirectExecutor.asCoroutineDispatcher())
+		viewModel = MainViewModel(application, TestDirectContext(), TestDirectContext())
 	}
 
 	@Test
@@ -112,16 +102,11 @@ internal class MainViewModelTest {
 	}
 
 	@Test
-	fun `startTimer starts timer`() {
-		lateinit var testModel: MainViewModel
-		runBlocking {
-			testModel = MainViewModel(application, coroutineContext + DirectExecutor.asCoroutineDispatcher())
-			testModel.startTimer()
-			delay(500)
-			assertEquals("10", testModel.timer)
-		}
-		assertEquals("Timer not empty","", testModel.timer)
-		val viewMsgsObj = getAndProcessEvent(testModel.messagesEvent)
+	fun `startTimer starts timer and shows message`() {
+		viewModel.startTimer()
+
+		assertEquals("Timer not empty","", viewModel.timer)
+		val viewMsgsObj = getAndProcessEvent(viewModel.messagesEvent)
 		verify(viewMsgsObj).showMessage("Timer ended")
 	}
 
