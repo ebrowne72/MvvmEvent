@@ -6,10 +6,10 @@ import com.example.erikbrowne.mvvmdemo.SingleLiveEvent
 
 class LiveMessageEvent<T> : SingleLiveEvent<(T.() -> Unit)?>() {
 
-	fun setEventHandler(owner: LifecycleOwner, eventHandler: (T.() -> Unit) -> Unit) {
+	fun setEventReceiver(owner: LifecycleOwner, receiver: T) {
 		observe(owner, Observer { event ->
 			if ( event != null ) {
-				eventHandler(event)
+				receiver.event()
 			}
 		})
 	}

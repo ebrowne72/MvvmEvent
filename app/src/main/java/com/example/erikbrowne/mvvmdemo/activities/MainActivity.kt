@@ -15,12 +15,8 @@ class MainActivity : BaseMvvmActivity<ActivityMainBinding, MainViewModel>(), Vie
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 		setModelAndView(MainViewModel::class.java, R.layout.activity_main)
-		viewModel.messagesEvent.setEventHandler(this) { event ->
-			this.event()
-		}
-		viewModel.navigationEvent.setEventHandler(this) { event ->
-			this.event()
-		}
+		viewModel.messagesEvent.setEventReceiver(this, this)
+		viewModel.navigationEvent.setEventReceiver(this, this)
     }
 
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
