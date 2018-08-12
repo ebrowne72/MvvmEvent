@@ -13,7 +13,6 @@ import com.example.erikbrowne.mvvmdemo.mvvm.ObservableViewModel
 import com.example.erikbrowne.mvvmdemo.mvvm.ViewMessages
 import com.example.erikbrowne.mvvmdemo.mvvm.ViewNavigation
 import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.CoroutineDispatcher
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.delay
@@ -29,7 +28,7 @@ const val REQUEST_CHOOSE_FILE = 132
 class MainViewModel @JvmOverloads constructor(
 		application: Application,
 		private val uiContext: CoroutineContext = UI,
-		private val bgDispatcher: CoroutineDispatcher = CommonPool
+		private val bgContext: CoroutineContext = CommonPool
 ) : ObservableViewModel(application) {
 
 	var firstName = "Erik"
@@ -56,10 +55,8 @@ class MainViewModel @JvmOverloads constructor(
 
 	fun startTimer() {
 		timerJob?.cancel()
-		println("startTimer")
 		timerJob = launch(uiContext) {
 			for ( i in 10 downTo 0 ) {
-				println("timer loop $i")
 				timer = i.toString()
 				if ( i == 0 ) {
 					messagesEvent.sendEvent { showMessage("Timer ended") }
@@ -145,7 +142,7 @@ class MainViewModel @JvmOverloads constructor(
 
 	}
 
-	private suspend fun getDataFromNet(): String = withContext(bgDispatcher) {
+	private suspend fun getDataFromNet(): String = withContext(bgContext) {
 		delay(5000)
 		"Coroutine is done"
 	}

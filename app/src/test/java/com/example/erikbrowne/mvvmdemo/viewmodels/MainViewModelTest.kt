@@ -3,6 +3,9 @@ package com.example.erikbrowne.mvvmdemo.viewmodels
 import android.app.Activity
 import android.app.Application
 import android.arch.core.executor.testing.InstantTaskExecutorRule
+import android.arch.lifecycle.ViewModel
+import android.arch.lifecycle.ViewModelProvider
+import android.arch.lifecycle.ViewModelStore
 import android.content.Intent
 import android.net.Uri
 import com.example.erikbrowne.mvvmdemo.R
@@ -10,15 +13,17 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.check
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.never
 import com.nhaarman.mockito_kotlin.verify
 import kotlinx.coroutines.experimental.CancellableContinuation
 import kotlinx.coroutines.experimental.CoroutineDispatcher
 import kotlinx.coroutines.experimental.Delay
+import kotlinx.coroutines.experimental.test.TestCoroutineContext
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.ArgumentMatchers.anyString
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.experimental.CoroutineContext
 
@@ -49,7 +54,6 @@ internal class MainViewModelTest {
 
 	private inline fun <reified T : Any> getAndProcessEvent(event: LiveMessageEvent<T>): T {
 		val eventValue = event.value
-		assertNotNull(eventValue)
 		val receiverObject = mock<T>()
 		if ( eventValue != null ) {
 			receiverObject.eventValue()
@@ -103,11 +107,51 @@ internal class MainViewModelTest {
 
 	@Test
 	fun `startTimer starts timer and shows message`() {
-		viewModel.startTimer()
+		val testCoroutineContext = TestCoroutineContext()
+		val localViewModel = MainViewModel(application, testCoroutineContext, testCoroutineContext)
+		localViewModel.startTimer()
 
-		assertEquals("Timer not empty","", viewModel.timer)
-		val viewMsgsObj = getAndProcessEvent(viewModel.messagesEvent)
+		testCoroutineContext.advanceTimeTo(500, TimeUnit.MILLISECONDS)
+		assertEquals("Timer isn't 10", "10", localViewModel.timer)
+
+		testCoroutineContext.advanceTimeTo(5500, TimeUnit.MILLISECONDS)
+		assertEquals("Timer isn't 5", "5", localViewModel.timer)
+
+		testCoroutineContext.advanceTimeTo(9500, TimeUnit.MILLISECONDS)
+		assertEquals("Timer isn't 1", "1", localViewModel.timer)
+
+		var viewMsgsObj = getAndProcessEvent(localViewModel.messagesEvent)
+		verify(viewMsgsObj, never()).showMessage(anyString())
+
+		testCoroutineContext.advanceTimeTo(10500, TimeUnit.MILLISECONDS)
+		assertEquals("Timer isn't 0", "0", localViewModel.timer)
+		viewMsgsObj = getAndProcessEvent(localViewModel.messagesEvent)
 		verify(viewMsgsObj).showMessage("Timer ended")
+
+		testCoroutineContext.advanceTimeTo(11500, TimeUnit.MILLISECONDS)
+		assertEquals("Timer not empty","", localViewModel.timer)
+	}
+
+	@Test
+	fun `disposing ViewModel cancels timer`() {
+		val testCoroutineContext = TestCoroutineContext()
+		val localViewModel = MainViewModel(application, testCoroutineContext, testCoroutineContext)
+		val viewModelStore = ViewModelStore()
+		val viewModelProvider = ViewModelProvider(viewModelStore, object : ViewModelProvider.Factory {
+			@Suppress("UNCHECKED_CAST")
+			override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+				return localViewModel as T
+			}
+		})
+		viewModelProvider.get("key", MainViewModel::class.java)
+		localViewModel.startTimer()
+
+		testCoroutineContext.advanceTimeTo(500, TimeUnit.MILLISECONDS)
+		assertEquals("Timer isn't 10", "10", localViewModel.timer)
+
+		viewModelStore.clear()
+		testCoroutineContext.advanceTimeTo(1500, TimeUnit.MILLISECONDS)
+		assertEquals("Timer isn't still 10", "10", localViewModel.timer)
 	}
 
 	@Test
