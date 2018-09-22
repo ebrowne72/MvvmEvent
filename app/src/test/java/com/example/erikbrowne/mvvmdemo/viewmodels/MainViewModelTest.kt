@@ -14,6 +14,8 @@ import com.nhaarman.mockito_kotlin.verify
 import kotlinx.coroutines.experimental.CancellableContinuation
 import kotlinx.coroutines.experimental.CoroutineDispatcher
 import kotlinx.coroutines.experimental.Delay
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -206,5 +208,11 @@ internal class MainViewModelTest {
 
 		val viewMsgsObj = getAndProcessEvent(viewModel.messagesEvent)
 		verify(viewMsgsObj).showMessage("Coroutine is done")
+	}
+
+	@Test
+	fun `asyncOutside waits and returns sum`() = runBlocking {
+		val localVieModel = MainViewModel(application, TestDirectDispatcher(), Dispatchers.Default)
+		assertEquals(111, localVieModel.asyncOutside())
 	}
 }

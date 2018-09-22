@@ -13,9 +13,12 @@ import com.example.erikbrowne.mvvmdemo.mvvm.ObservableViewModel
 import com.example.erikbrowne.mvvmdemo.mvvm.ViewMessages
 import com.example.erikbrowne.mvvmdemo.mvvm.ViewNavigation
 import kotlinx.coroutines.experimental.CoroutineDispatcher
+import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.Main
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.coroutineScope
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.withContext
@@ -140,6 +143,28 @@ class MainViewModel @JvmOverloads constructor(
 	private suspend fun getDataFromNet(): String = withContext(bgDispatcher) {
 		delay(5000)
 		"Coroutine is done"
+	}
+
+	suspend fun asyncOutside(): Int {
+		lateinit var deferred1: Deferred<Int>
+		lateinit var deferred2: Deferred<Int>
+		coroutineScope {
+			println("start scope")
+			deferred1 = async(bgDispatcher) {
+				delay(2000)
+				println("async 1 complete")
+				42
+			}
+			deferred2 = async(bgDispatcher) {
+				delay(1000)
+				println("async 2 complete")
+				69
+			}
+			println("end scope")
+		}
+
+		println("all done")
+		return deferred1.await() + deferred2.await()
 	}
 
 }
