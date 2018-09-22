@@ -5,8 +5,24 @@ import android.arch.lifecycle.AndroidViewModel
 import android.databinding.Bindable
 import android.databinding.Observable
 import android.databinding.PropertyChangeRegistry
+import android.support.annotation.CallSuper
+import kotlinx.coroutines.experimental.CoroutineDispatcher
+import kotlinx.coroutines.experimental.CoroutineScope
+import kotlinx.coroutines.experimental.Job
+import kotlin.coroutines.experimental.CoroutineContext
 
-open class ObservableViewModel(application: Application) : AndroidViewModel(application), Observable {
+open class ObservableViewModel(application: Application, private val mainDispatcher: CoroutineDispatcher)
+	: AndroidViewModel(application), Observable, CoroutineScope {
+
+	private val job = Job()
+	override val coroutineContext: CoroutineContext
+		get() = job + mainDispatcher
+
+	@CallSuper
+	override fun onCleared() {
+		job.cancel()
+	}
+
 	/**
 	 * Copied from BaseObservable
 	 */

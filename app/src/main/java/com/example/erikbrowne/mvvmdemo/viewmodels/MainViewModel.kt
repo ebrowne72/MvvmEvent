@@ -12,13 +12,13 @@ import com.example.erikbrowne.mvvmdemo.R
 import com.example.erikbrowne.mvvmdemo.mvvm.ObservableViewModel
 import com.example.erikbrowne.mvvmdemo.mvvm.ViewMessages
 import com.example.erikbrowne.mvvmdemo.mvvm.ViewNavigation
-import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.CoroutineDispatcher
+import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.android.Main
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.withContext
-import kotlin.coroutines.experimental.CoroutineContext
 import kotlin.coroutines.experimental.buildSequence
 
 private const val TIMER_INTERVAL = 1000L
@@ -27,9 +27,9 @@ const val REQUEST_CHOOSE_FILE = 132
 
 class MainViewModel @JvmOverloads constructor(
 		application: Application,
-		private val uiContext: CoroutineContext = UI,
-		private val bgContext: CoroutineContext = CommonPool
-) : ObservableViewModel(application) {
+		mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
+		private val bgDispatcher: CoroutineDispatcher = Dispatchers.Default
+) : ObservableViewModel(application, mainDispatcher) {
 
 	var firstName = "Erik"
 	var lastName = "Browne"
@@ -47,15 +47,10 @@ class MainViewModel @JvmOverloads constructor(
 	private var fibonacciItr: Iterator<Int>? = null
 	private var primeItr: Iterator<Int>? = null
 	private var timerJob: Job? = null
-	private val parentJob = Job()
-
-	override fun onCleared() {
-		timerJob?.cancel()
-	}
 
 	fun startTimer() {
 		timerJob?.cancel()
-		timerJob = launch(uiContext) {
+		timerJob = launch {
 			for ( i in 10 downTo 0 ) {
 				timer = i.toString()
 				if ( i == 0 ) {
@@ -135,14 +130,14 @@ class MainViewModel @JvmOverloads constructor(
 	}
 
 	fun doSomethingAsync() {
-		launch(uiContext, parent = parentJob) {
+		launch {
 			val data = getDataFromNet()
 			messagesEvent.sendEvent { showMessage(data) }
 		}
 
 	}
 
-	private suspend fun getDataFromNet(): String = withContext(bgContext) {
+	private suspend fun getDataFromNet(): String = withContext(bgDispatcher) {
 		delay(5000)
 		"Coroutine is done"
 	}
