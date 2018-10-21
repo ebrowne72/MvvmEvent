@@ -2,7 +2,7 @@ package com.example.erikbrowne.mvvmdemo.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import com.example.erikbrowne.mvvmdemo.R
 import com.example.erikbrowne.mvvmdemo.databinding.ActivityMainBinding
 import com.example.erikbrowne.mvvmdemo.mvvm.BaseMvvmActivity

@@ -1,11 +1,11 @@
 package com.example.erikbrowne.mvvmdemo.mvvm
 
 import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
-import android.databinding.Bindable
-import android.databinding.Observable
-import android.databinding.PropertyChangeRegistry
-import android.support.annotation.CallSuper
+import androidx.lifecycle.AndroidViewModel
+import androidx.databinding.Bindable
+import androidx.databinding.Observable
+import androidx.databinding.PropertyChangeRegistry
+import androidx.annotation.CallSuper
 import kotlinx.coroutines.experimental.CoroutineDispatcher
 import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.Job

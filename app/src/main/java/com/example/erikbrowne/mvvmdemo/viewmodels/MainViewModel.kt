@@ -3,10 +3,10 @@ package com.example.erikbrowne.mvvmdemo.viewmodels
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
-import android.databinding.Bindable
 import android.net.Uri
-import android.support.annotation.VisibleForTesting
-import com.android.databinding.library.baseAdapters.BR
+import androidx.annotation.VisibleForTesting
+import androidx.databinding.Bindable
+import androidx.databinding.library.baseAdapters.BR
 import com.example.erikbrowne.mvvmdemo.DataBindingPropDelegate
 import com.example.erikbrowne.mvvmdemo.R
 import com.example.erikbrowne.mvvmdemo.mvvm.ObservableViewModel
@@ -81,7 +81,7 @@ class MainViewModel @JvmOverloads constructor(
 		when ( requestCode ) {
 			REQUEST_CHOOSE_FILE -> {
 				if ( resultCode == Activity.RESULT_OK && data != null ) {
-					val uri: Uri = data.data
+					val uri: Uri? = data.data
 					fileUri = uri.toString()
 				}
 			}

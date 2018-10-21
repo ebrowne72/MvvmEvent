@@ -1,11 +1,11 @@
 package com.example.erikbrowne.mvvmdemo.mvvm
 
-import android.arch.lifecycle.ViewModelProviders
-import android.databinding.DataBindingUtil
-import android.databinding.ViewDataBinding
-import android.support.annotation.LayoutRes
-import android.support.v7.app.AppCompatActivity
-import com.android.databinding.library.baseAdapters.BR
+import androidx.annotation.LayoutRes
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
+import androidx.databinding.library.baseAdapters.BR
+import androidx.lifecycle.ViewModelProviders
 
 abstract class BaseMvvmActivity<B : ViewDataBinding, VM : ObservableViewModel> : AppCompatActivity() {
 	protected lateinit var binding: B

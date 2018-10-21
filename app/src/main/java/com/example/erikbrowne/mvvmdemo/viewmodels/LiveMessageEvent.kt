@@ -1,7 +1,7 @@
 package com.example.erikbrowne.mvvmdemo.viewmodels
 
-import android.arch.lifecycle.LifecycleOwner
-import android.arch.lifecycle.Observer
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
 import com.example.erikbrowne.mvvmdemo.SingleLiveEvent
 
 class LiveMessageEvent<T> : SingleLiveEvent<(T.() -> Unit)?>() {

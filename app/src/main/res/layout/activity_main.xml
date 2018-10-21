@@ -16,7 +16,7 @@
 		android:layout_width="match_parent"
 		android:fillViewport="true">
 
-		<android.support.constraint.ConstraintLayout
+		<androidx.constraintlayout.widget.ConstraintLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content">
 
@@ -168,7 +168,7 @@
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toEndOf="@+id/primeButton"/>
 
-		</android.support.constraint.ConstraintLayout>
+		</androidx.constraintlayout.widget.ConstraintLayout>
 	</ScrollView>
 
 </layout>

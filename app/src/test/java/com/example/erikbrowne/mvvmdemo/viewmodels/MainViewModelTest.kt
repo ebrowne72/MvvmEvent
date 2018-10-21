@@ -2,7 +2,7 @@ package com.example.erikbrowne.mvvmdemo.viewmodels
 
 import android.app.Activity
 import android.app.Application
-import android.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import android.content.Intent
 import android.net.Uri
 import com.example.erikbrowne.mvvmdemo.R
