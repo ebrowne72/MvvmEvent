@@ -12,17 +12,15 @@ import com.example.erikbrowne.mvvmdemo.R
 import com.example.erikbrowne.mvvmdemo.mvvm.ObservableViewModel
 import com.example.erikbrowne.mvvmdemo.mvvm.ViewMessages
 import com.example.erikbrowne.mvvmdemo.mvvm.ViewNavigation
-import kotlinx.coroutines.experimental.CoroutineDispatcher
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.android.Main
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.coroutineScope
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.withContext
-import kotlin.coroutines.experimental.buildSequence
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private const val TIMER_INTERVAL = 1000L
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -90,7 +88,7 @@ class MainViewModel @JvmOverloads constructor(
 
 	fun showNextFibonacci() {
 		if ( fibonacciItr == null ) {
-			val fibonacciSeq = buildSequence {
+			val fibonacciSeq = sequence {
 				var prevPrev = 1
 				var prev = 1
 
@@ -110,7 +108,7 @@ class MainViewModel @JvmOverloads constructor(
 
 	fun showNextPrime() {
 		if ( primeItr == null ) {
-			val primeSeq = buildSequence {
+			val primeSeq = sequence {
 				val primeList = mutableListOf<Int>()
 
 				// yield the first prime
@@ -167,4 +165,12 @@ class MainViewModel @JvmOverloads constructor(
 		return deferred1.await() + deferred2.await()
 	}
 
+	fun spekTest(dependency: Dependency): String {
+		dependency.startSomething()
+		return "value"
+	}
+}
+
+interface Dependency {
+	fun startSomething()
 }

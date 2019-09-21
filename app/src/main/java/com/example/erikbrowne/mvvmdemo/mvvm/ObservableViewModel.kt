@@ -1,26 +1,21 @@
 package com.example.erikbrowne.mvvmdemo.mvvm
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.annotation.CallSuper
 import androidx.databinding.Bindable
 import androidx.databinding.Observable
 import androidx.databinding.PropertyChangeRegistry
-import androidx.annotation.CallSuper
-import kotlinx.coroutines.experimental.CoroutineDispatcher
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.Job
-import kotlin.coroutines.experimental.CoroutineContext
+import androidx.lifecycle.AndroidViewModel
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 
 open class ObservableViewModel(application: Application, private val mainDispatcher: CoroutineDispatcher)
-	: AndroidViewModel(application), Observable, CoroutineScope {
-
-	private val job = Job()
-	override val coroutineContext: CoroutineContext
-		get() = job + mainDispatcher
+	: AndroidViewModel(application), Observable, CoroutineScope by CoroutineScope(mainDispatcher) {
 
 	@CallSuper
 	override fun onCleared() {
-		job.cancel()
+		cancel()
 	}
 
 	/**

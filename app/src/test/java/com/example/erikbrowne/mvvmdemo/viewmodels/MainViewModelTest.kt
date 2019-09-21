@@ -2,44 +2,38 @@ package com.example.erikbrowne.mvvmdemo.viewmodels
 
 import android.app.Activity
 import android.app.Application
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import android.content.Intent
 import android.net.Uri
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
 import com.example.erikbrowne.mvvmdemo.R
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.check
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.never
 import com.nhaarman.mockito_kotlin.verify
-import kotlinx.coroutines.experimental.CancellableContinuation
-import kotlinx.coroutines.experimental.CoroutineDispatcher
-import kotlinx.coroutines.experimental.Delay
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.runBlockingTest
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.util.concurrent.TimeUnit
-import kotlin.coroutines.experimental.CoroutineContext
+import org.mockito.ArgumentMatchers.anyString
 
-class TestDirectDispatcher : CoroutineDispatcher(), Delay {
-	override fun scheduleResumeAfterDelay(time: Long, unit: TimeUnit, continuation: CancellableContinuation<Unit>) {
-		continuation.resume(Unit)
-	}
 
-	override fun dispatch(context: CoroutineContext, block: Runnable) {
-		block.run()
-	}
-
-}
-
+@ExperimentalCoroutinesApi
 internal class MainViewModelTest {
 
 	@Rule
 	@JvmField
 	val rule = InstantTaskExecutorRule()
 
+	private val testDispatcher = TestCoroutineDispatcher()
 	private lateinit var viewModel: MainViewModel
 
 	private val message = "message"
@@ -59,7 +53,12 @@ internal class MainViewModelTest {
 
 	@Before
 	fun beforeEachTest() {
-		viewModel = MainViewModel(application, TestDirectDispatcher(), TestDirectDispatcher())
+		viewModel = MainViewModel(application, testDispatcher, testDispatcher)
+	}
+
+	@After
+	fun afterEachTest() {
+		testDispatcher.cleanupTestCoroutines()
 	}
 
 	@Test
@@ -101,56 +100,50 @@ internal class MainViewModelTest {
 		assertEquals("", viewModel.fileUri)
 	}
 
-	/*
 	@Test
 	fun `startTimer starts timer and shows message`() {
-		val testCoroutineContext = TestCoroutineContext()
-		val localViewModel = MainViewModel(application, testCoroutineContext, testCoroutineContext)
-		localViewModel.startTimer()
+		viewModel.startTimer()
 
-		testCoroutineContext.advanceTimeTo(500, TimeUnit.MILLISECONDS)
-		assertEquals("Timer isn't 10", "10", localViewModel.timer)
+		testDispatcher.advanceTimeBy(500)
+		assertEquals("Timer isn't 10", "10", viewModel.timer)
 
-		testCoroutineContext.advanceTimeTo(5500, TimeUnit.MILLISECONDS)
-		assertEquals("Timer isn't 5", "5", localViewModel.timer)
+		testDispatcher.advanceTimeBy(5000)
+		assertEquals("Timer isn't 5", "5", viewModel.timer)
 
-		testCoroutineContext.advanceTimeTo(9500, TimeUnit.MILLISECONDS)
-		assertEquals("Timer isn't 1", "1", localViewModel.timer)
+		testDispatcher.advanceTimeBy(4000)
+		assertEquals("Timer isn't 1", "1", viewModel.timer)
 
-		var viewMsgsObj = getAndProcessEvent(localViewModel.messagesEvent)
+		var viewMsgsObj = getAndProcessEvent(viewModel.messagesEvent)
 		verify(viewMsgsObj, never()).showMessage(anyString())
 
-		testCoroutineContext.advanceTimeTo(10500, TimeUnit.MILLISECONDS)
-		assertEquals("Timer isn't 0", "0", localViewModel.timer)
-		viewMsgsObj = getAndProcessEvent(localViewModel.messagesEvent)
+		testDispatcher.advanceTimeBy(1000)
+		assertEquals("Timer isn't 0", "0", viewModel.timer)
+		viewMsgsObj = getAndProcessEvent(viewModel.messagesEvent)
 		verify(viewMsgsObj).showMessage("Timer ended")
 
-		testCoroutineContext.advanceTimeTo(11500, TimeUnit.MILLISECONDS)
-		assertEquals("Timer not empty","", localViewModel.timer)
+		testDispatcher.advanceTimeBy(1000)
+		assertEquals("Timer not empty","", viewModel.timer)
 	}
 
 	@Test
 	fun `disposing ViewModel cancels timer`() {
-		val testCoroutineContext = TestCoroutineContext()
-		val localViewModel = MainViewModel(application, testCoroutineContext, testCoroutineContext)
 		val viewModelStore = ViewModelStore()
 		val viewModelProvider = ViewModelProvider(viewModelStore, object : ViewModelProvider.Factory {
 			@Suppress("UNCHECKED_CAST")
 			override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-				return localViewModel as T
+				return viewModel as T
 			}
 		})
 		viewModelProvider.get("key", MainViewModel::class.java)
-		localViewModel.startTimer()
+		viewModel.startTimer()
 
-		testCoroutineContext.advanceTimeTo(500, TimeUnit.MILLISECONDS)
-		assertEquals("Timer isn't 10", "10", localViewModel.timer)
+		testDispatcher.advanceTimeBy(500)
+		assertEquals("Timer isn't 10", "10", viewModel.timer)
 
 		viewModelStore.clear()
-		testCoroutineContext.advanceTimeTo(1500, TimeUnit.MILLISECONDS)
-		assertEquals("Timer isn't still 10", "10", localViewModel.timer)
+		testDispatcher.advanceTimeBy(1000)
+		assertEquals("Timer isn't still 10", "10", viewModel.timer)
 	}
-*/
 
 	@Test
 	fun `showNextFibonacci shows Fibonacci numbers`() {
@@ -205,14 +198,15 @@ internal class MainViewModelTest {
 	@Test
 	fun `doSomethingAsync waits then shows message`() {
 		viewModel.doSomethingAsync()
+		testDispatcher.advanceUntilIdle()
 
 		val viewMsgsObj = getAndProcessEvent(viewModel.messagesEvent)
 		verify(viewMsgsObj).showMessage("Coroutine is done")
 	}
 
 	@Test
-	fun `asyncOutside waits and returns sum`() = runBlocking {
-		val localVieModel = MainViewModel(application, TestDirectDispatcher(), Dispatchers.Default)
-		assertEquals(111, localVieModel.asyncOutside())
+	fun `asyncOutside waits and returns sum`() = testDispatcher.runBlockingTest {
+		val value = viewModel.asyncOutside()
+		assertEquals(111, value)
 	}
 }
