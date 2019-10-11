@@ -6,16 +6,18 @@ import android.content.Intent
 import android.net.Uri
 import androidx.annotation.VisibleForTesting
 import androidx.databinding.Bindable
-import androidx.databinding.library.baseAdapters.BR
+import com.example.erikbrowne.mvvmdemo.BR
 import com.example.erikbrowne.mvvmdemo.DataBindingPropDelegate
 import com.example.erikbrowne.mvvmdemo.R
 import com.example.erikbrowne.mvvmdemo.mvvm.ObservableViewModel
 import com.example.erikbrowne.mvvmdemo.mvvm.ViewMessages
 import com.example.erikbrowne.mvvmdemo.mvvm.ViewNavigation
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -28,9 +30,9 @@ const val REQUEST_CHOOSE_FILE = 132
 
 class MainViewModel @JvmOverloads constructor(
 		application: Application,
-		mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
+		mainScope: CoroutineScope = MainScope(),
 		private val bgDispatcher: CoroutineDispatcher = Dispatchers.Default
-) : ObservableViewModel(application, mainDispatcher) {
+) : ObservableViewModel(application, mainScope) {
 
 	var firstName = "Erik"
 	var lastName = "Browne"
@@ -51,7 +53,7 @@ class MainViewModel @JvmOverloads constructor(
 
 	fun startTimer() {
 		timerJob?.cancel()
-		timerJob = launch {
+		timerJob = mainScope.launch {
 			for ( i in 10 downTo 0 ) {
 				timer = i.toString()
 				if ( i == 0 ) {
@@ -131,11 +133,10 @@ class MainViewModel @JvmOverloads constructor(
 	}
 
 	fun doSomethingAsync() {
-		launch {
+		mainScope.launch {
 			val data = getDataFromNet()
 			messagesEvent.sendEvent { showMessage(data) }
 		}
-
 	}
 
 	private suspend fun getDataFromNet(): String = withContext(bgDispatcher) {

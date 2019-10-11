@@ -6,16 +6,16 @@ import androidx.databinding.Bindable
 import androidx.databinding.Observable
 import androidx.databinding.PropertyChangeRegistry
 import androidx.lifecycle.AndroidViewModel
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 
-open class ObservableViewModel(application: Application, private val mainDispatcher: CoroutineDispatcher)
-	: AndroidViewModel(application), Observable, CoroutineScope by CoroutineScope(mainDispatcher) {
+open class ObservableViewModel(application: Application, protected val mainScope: CoroutineScope)
+	: AndroidViewModel(application), Observable {
+
 
 	@CallSuper
 	override fun onCleared() {
-		cancel()
+		mainScope.cancel()
 	}
 
 	/**

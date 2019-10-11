@@ -16,7 +16,9 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.never
 import com.nhaarman.mockito_kotlin.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -34,6 +36,7 @@ internal class MainViewModelTest {
 	val rule = InstantTaskExecutorRule()
 
 	private val testDispatcher = TestCoroutineDispatcher()
+	private val testScope = TestCoroutineScope(testDispatcher + SupervisorJob())
 	private lateinit var viewModel: MainViewModel
 
 	private val message = "message"
@@ -53,11 +56,12 @@ internal class MainViewModelTest {
 
 	@Before
 	fun beforeEachTest() {
-		viewModel = MainViewModel(application, testDispatcher, testDispatcher)
+		viewModel = MainViewModel(application, testScope, testDispatcher)
 	}
 
 	@After
 	fun afterEachTest() {
+		testScope.cleanupTestCoroutines()
 		testDispatcher.cleanupTestCoroutines()
 	}
 
@@ -104,24 +108,24 @@ internal class MainViewModelTest {
 	fun `startTimer starts timer and shows message`() {
 		viewModel.startTimer()
 
-		testDispatcher.advanceTimeBy(500)
+		testScope.advanceTimeBy(500)
 		assertEquals("Timer isn't 10", "10", viewModel.timer)
 
-		testDispatcher.advanceTimeBy(5000)
+		testScope.advanceTimeBy(5000)
 		assertEquals("Timer isn't 5", "5", viewModel.timer)
 
-		testDispatcher.advanceTimeBy(4000)
+		testScope.advanceTimeBy(4000)
 		assertEquals("Timer isn't 1", "1", viewModel.timer)
 
 		var viewMsgsObj = getAndProcessEvent(viewModel.messagesEvent)
 		verify(viewMsgsObj, never()).showMessage(anyString())
 
-		testDispatcher.advanceTimeBy(1000)
+		testScope.advanceTimeBy(1000)
 		assertEquals("Timer isn't 0", "0", viewModel.timer)
 		viewMsgsObj = getAndProcessEvent(viewModel.messagesEvent)
 		verify(viewMsgsObj).showMessage("Timer ended")
 
-		testDispatcher.advanceTimeBy(1000)
+		testScope.advanceTimeBy(1000)
 		assertEquals("Timer not empty","", viewModel.timer)
 	}
 
@@ -137,11 +141,11 @@ internal class MainViewModelTest {
 		viewModelProvider.get("key", MainViewModel::class.java)
 		viewModel.startTimer()
 
-		testDispatcher.advanceTimeBy(500)
+		testScope.advanceTimeBy(500)
 		assertEquals("Timer isn't 10", "10", viewModel.timer)
 
 		viewModelStore.clear()
-		testDispatcher.advanceTimeBy(1000)
+		testScope.advanceTimeBy(1000)
 		assertEquals("Timer isn't still 10", "10", viewModel.timer)
 	}
 
@@ -198,14 +202,14 @@ internal class MainViewModelTest {
 	@Test
 	fun `doSomethingAsync waits then shows message`() {
 		viewModel.doSomethingAsync()
-		testDispatcher.advanceUntilIdle()
+		testScope.advanceUntilIdle()
 
 		val viewMsgsObj = getAndProcessEvent(viewModel.messagesEvent)
 		verify(viewMsgsObj).showMessage("Coroutine is done")
 	}
 
 	@Test
-	fun `asyncOutside waits and returns sum`() = testDispatcher.runBlockingTest {
+	fun `asyncOutside waits and returns sum`() = testScope.runBlockingTest {
 		val value = viewModel.asyncOutside()
 		assertEquals(111, value)
 	}
