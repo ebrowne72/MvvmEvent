@@ -46,12 +46,6 @@ junitPlatform {
 }
 */
 
-kotlin {
-    experimental {
-        coroutines 'enable'
-    }
-}
-
 kapt {
     generateStubs = true
 }
@@ -68,7 +62,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation "androidx.lifecycle:lifecycle-extensions:2.1.0"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.1'
 
     unmock 'org.robolectric:android-all:4.3_r2-robolectric-0'

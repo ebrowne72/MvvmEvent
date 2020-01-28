@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.databinding.library.baseAdapters.BR
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 
 abstract class BaseMvvmActivity<B : ViewDataBinding, VM : ObservableViewModel> : AppCompatActivity() {
 	protected lateinit var binding: B
@@ -13,7 +13,7 @@ abstract class BaseMvvmActivity<B : ViewDataBinding, VM : ObservableViewModel> :
 
 	fun setModelAndView(modelClazz: Class<VM>, @LayoutRes layoutId: Int) {
 		binding = DataBindingUtil.setContentView(this, layoutId)
-		viewModel = ViewModelProviders.of(this).get(modelClazz)
+		viewModel = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(application)).get(modelClazz)
 		binding.setVariable(BR.viewModel, viewModel)
 	}
 }
