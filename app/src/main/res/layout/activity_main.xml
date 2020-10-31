@@ -155,10 +155,10 @@
 				android:onClick="@{() -> viewModel.showNextPrime()}"
 				android:text="@string/primes"
 				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/fibonacciButton"/>
+				app:layout_constraintTop_toBottomOf="@id/fibonacciButton"/>
 
 			<TextView
-				android:id="@+id/textView"
+				android:id="@+id/primeValue"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_marginEnd="8dp"
@@ -166,7 +166,37 @@
 				android:text="@{viewModel.prime}"
 				app:layout_constraintBaseline_toBaselineOf="@+id/primeButton"
 				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintStart_toEndOf="@+id/primeButton"/>
+				app:layout_constraintStart_toEndOf="@id/primeButton"/>
+
+			<Button
+				android:id="@+id/startFlowButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="16dp"
+				android:layout_marginTop="16dp"
+				android:onClick="@{() -> viewModel.startFlow()}"
+				android:text="@string/start_flow"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/primeButton"/>
+
+			<Button
+				android:id="@+id/startCollectButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="16dp"
+				android:text="@string/collect_flow"
+				app:layout_constraintStart_toEndOf="@id/startFlowButton"
+				app:layout_constraintTop_toTopOf="@id/startFlowButton"/>
+
+			<TextView
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="8dp"
+				android:layout_marginEnd="8dp"
+				android:text="@{viewModel.flowValues}"
+				app:layout_constraintBaseline_toBaselineOf="@id/startCollectButton"
+				app:layout_constraintStart_toEndOf="@id/startCollectButton"
+				app:layout_constraintEnd_toEndOf="parent"/>
 
 		</androidx.constraintlayout.widget.ConstraintLayout>
 	</ScrollView>

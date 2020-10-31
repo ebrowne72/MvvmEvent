@@ -21,6 +21,7 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -44,8 +45,11 @@ class MainViewModel @JvmOverloads constructor(
 		@Bindable get
 	var prime: String by DataBindingPropDelegate("", BR.prime)
 		@Bindable get
+	var flowValues: String by DataBindingPropDelegate("", BR.flowValues)
+		@Bindable get
 	val navigationEvent = LiveMessageEvent<ViewNavigation>()
 	val messagesEvent = LiveMessageEvent<ViewMessages>()
+	var valueFlow: MutableSharedFlow<Int>? = null
 
 	private var fibonacciItr: Iterator<Int>? = null
 	private var primeItr: Iterator<Int>? = null
@@ -169,6 +173,15 @@ class MainViewModel @JvmOverloads constructor(
 	fun spekTest(dependency: Dependency): String {
 		dependency.startSomething()
 		return "value"
+	}
+
+	fun startFlow() {
+		valueFlow = MutableSharedFlow<Int>(
+				replay = 10,
+		)
+		for (i in 1..5) {
+			valueFlow?.tryEmit(i)
+		}
 	}
 }
 

@@ -9,4 +9,6 @@
 	<string name="choose_file">Choose File</string>
 	<string name="fibonacci">Fibonacci</string>
 	<string name="primes">Primes</string>
+	<string name="start_flow">Start Flow</string>
+	<string name="collect_flow">Collect Flow</string>
 </resources>
