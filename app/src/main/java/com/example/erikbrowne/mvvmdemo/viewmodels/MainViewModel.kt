@@ -176,7 +176,7 @@ class MainViewModel @JvmOverloads constructor(
 	}
 
 	fun startFlow() {
-		valueFlow = MutableSharedFlow<Int>(
+		valueFlow = MutableSharedFlow(
 				replay = 10,
 		)
 		for (i in 1..5) {

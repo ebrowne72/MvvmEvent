@@ -72,8 +72,9 @@ dependencies {
     unmock 'org.robolectric:android-all:4.3_r2-robolectric-0'
 
     //    testImplementation 'junit:junit:4.12'
-    def junitVersion = "5.7.1"
+    def junitVersion = "5.8.2"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testImplementation "org.junit.vintage:junit-vintage-engine:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 //    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlin_coroutines_version"
