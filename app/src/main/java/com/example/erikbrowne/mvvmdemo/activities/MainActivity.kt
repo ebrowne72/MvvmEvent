@@ -29,6 +29,7 @@ class MainActivity : BaseMvvmActivity<ActivityMainBinding, MainViewModel>(), Vie
 		}
     }
 
+	@Deprecated("Deprecated in Java")
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 		viewModel.processActivityResult(requestCode, resultCode, data)
 		super.onActivityResult(requestCode, resultCode, data)
