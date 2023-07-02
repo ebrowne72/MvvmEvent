@@ -1,39 +1,42 @@
 package com.example.erikbrowne.mvvmdemo.activities
 
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.erikbrowne.mvvmdemo.R
 import com.example.erikbrowne.mvvmdemo.databinding.ActivityMainBinding
 import com.example.erikbrowne.mvvmdemo.mvvm.BaseMvvmActivity
 import com.example.erikbrowne.mvvmdemo.mvvm.ViewMessages
 import com.example.erikbrowne.mvvmdemo.mvvm.ViewNavigation
 import com.example.erikbrowne.mvvmdemo.viewmodels.MainViewModel
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class MainActivity : BaseMvvmActivity<ActivityMainBinding, MainViewModel>(), ViewMessages, ViewNavigation {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+	private val picturePickerResultLauncher = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) {
+		viewModel.onPicturePicked(it)
+	}
+
+	override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 		setModelAndView(MainViewModel::class.java, R.layout.activity_main)
 		viewModel.messagesEvent.setEventReceiver(this, this)
 		viewModel.navigationEvent.setEventReceiver(this, this)
 		findViewById<Button>(R.id.startCollectButton).setOnClickListener {
-			lifecycleScope.launchWhenResumed {
-				viewModel.valueFlow?.collect {
-					viewModel.flowValues += "$it "
+			lifecycleScope.launch {
+				repeatOnLifecycle(Lifecycle.State.RESUMED) {
+					viewModel.valueFlow?.collect {
+						viewModel.flowValues += "$it "
+					}
 				}
 			}
 		}
     }
-
-	@Deprecated("Deprecated in Java")
-	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-		viewModel.processActivityResult(requestCode, resultCode, data)
-		super.onActivityResult(requestCode, resultCode, data)
-	}
 
 	override fun showMessage(msg: String) {
 		val builder = AlertDialog.Builder(this)
@@ -43,5 +46,9 @@ class MainActivity : BaseMvvmActivity<ActivityMainBinding, MainViewModel>(), Vie
 					dialog.dismiss()
 				}
 		builder.show()
+	}
+
+	override fun startPicturePicker() {
+		picturePickerResultLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
 	}
 }

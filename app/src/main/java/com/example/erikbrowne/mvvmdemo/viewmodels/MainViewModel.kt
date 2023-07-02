@@ -1,6 +1,5 @@
 package com.example.erikbrowne.mvvmdemo.viewmodels
 
-import android.app.Activity
 import android.app.Application
 import android.content.Intent
 import android.net.Uri
@@ -74,21 +73,12 @@ class MainViewModel @JvmOverloads constructor(
 	}
 
 	fun chooseFile() {
-		val intent = Intent(Intent.ACTION_GET_CONTENT)
-		intent.type = "image/*"
-		intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true)
-		intent.addCategory(Intent.CATEGORY_OPENABLE)
-		navigationEvent.sendEvent { startActivityForResult(intent, REQUEST_CHOOSE_FILE) }
+		navigationEvent.sendEvent { startPicturePicker() }
 	}
 
-	fun processActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-		when ( requestCode ) {
-			REQUEST_CHOOSE_FILE -> {
-				if ( resultCode == Activity.RESULT_OK && data != null ) {
-					val uri: Uri? = data.data
-					fileUri = uri.toString()
-				}
-			}
+	fun onPicturePicked(uri: Uri?) {
+		if (uri != null) {
+			fileUri = uri.toString()
 		}
 	}
 

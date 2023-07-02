@@ -1,8 +1,6 @@
 package com.example.erikbrowne.mvvmdemo.viewmodels
 
-import android.app.Activity
 import android.app.Application
-import android.content.Intent
 import android.net.Uri
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.ViewModel
@@ -20,8 +18,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
-import org.mockito.kotlin.any
-import org.mockito.kotlin.check
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
@@ -67,32 +63,26 @@ internal class MainViewModelTest {
 	}
 
 	@Test
-	fun `chooseFile sends nav event and starts activity`() {
+	fun `chooseFile sends nav event and starts picture picker`() {
 		viewModel.chooseFile()
 
 		val viewNavObj = getAndProcessEvent(viewModel.navigationEvent)
-		verify(viewNavObj).startActivityForResult(check {
-			assertEquals(Intent.ACTION_GET_CONTENT, it.action)
-			assertEquals("image/*", it.type)
-		}, any())
+		verify(viewNavObj).startPicturePicker()
 	}
 
 	@Test
-	fun `processActivityResult success sets URI`() {
+	fun `onPicturePicked success sets URI`() {
 		val uriStr = "content://something"
 		val uri = Uri.parse(uriStr)
-		val intent = mock<Intent> {
-			on { data } doReturn uri
-		}
 
-		viewModel.processActivityResult(REQUEST_CHOOSE_FILE, Activity.RESULT_OK, intent)
+		viewModel.onPicturePicked(uri)
 
 		assertEquals(uriStr, viewModel.fileUri)
 	}
 
 	@Test
-	fun `processActivityResult canceled does nothing`() {
-		viewModel.processActivityResult(REQUEST_CHOOSE_FILE, Activity.RESULT_CANCELED, null)
+	fun `onPicturePicked canceled does nothing`() {
+		viewModel.onPicturePicked(null)
 
 		assertEquals("", viewModel.fileUri)
 	}
